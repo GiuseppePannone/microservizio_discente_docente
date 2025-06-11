@@ -2,14 +2,18 @@ package com.elite_software_house.discente_docente.service;
 
 import com.elite_software_house.discente_docente.DTO.CorsoListDTO;
 import com.elite_software_house.discente_docente.DTO.CorsoWithoutAlunnoDTO;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import java.util.Base64;
 import java.util.List;
 
 @Service
 public class ExternalService {
+    private String credentials = "user:password";
+    private String encodedAuth = Base64.getEncoder().encodeToString(credentials.getBytes());
     private final WebClient webClient;
 
     public ExternalService(WebClient webClient) {
@@ -33,6 +37,7 @@ public class ExternalService {
         if(discenteId != null) {
             return webClient.get()
                     .uri("api/corsi/discente/{discenteId}", discenteId)
+                    .header(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth)
                     .retrieve()
                     .bodyToFlux(CorsoWithoutAlunnoDTO.class)
                     .collectList()

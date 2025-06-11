@@ -7,6 +7,7 @@ import com.elite_software_house.discente_docente.repository.DocenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +22,26 @@ public class DocenteService {
     @Autowired
     private DocenteMapper docenteMapper;
 
+    @Autowired
+    private WebClient webClient;
+
+    @Autowired
+    private ExternalService externalService;
+
 //    @Autowired
 //    private CorsoRepository corsoRepository;
 
     public List<DocenteDTO> findAll() {
-        return docenteMapper.entityListToDtoList(docenteRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
+        List<DocenteDTO> docentiDTO = docenteMapper.entityListToDtoList(docenteRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
+
+        for(DocenteDTO docenteDto : docentiDTO){
+            try{
+                docenteDto.setCorsi(externalService.getCorsoWithoutAlunno(docenteDto.getId()));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return docentiDTO;
     }
 
     public DocenteDTO findById(Long id) {

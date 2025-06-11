@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/discenti")
+@RequestMapping("/api/discenti")
 public class DiscenteController {
 
     @Autowired
