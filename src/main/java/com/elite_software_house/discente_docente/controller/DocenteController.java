@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
@@ -17,10 +18,11 @@ public class DocenteController {
     DocenteService docenteService;
 
 
+
     // LISTA
     @GetMapping("/lista")
-    public List<DocenteDTO> findDocenti() {
-        return docenteService.findAll();
+    public List<DocenteDTO> findDocenti(@RequestHeader("Authorization") String token) {
+        return docenteService.findAll(token);
     }
     // SALVA NUOVO
     @PostMapping
@@ -30,9 +32,9 @@ public class DocenteController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocenteDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<DocenteDTO> findById(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         try{
-            DocenteDTO docenteDTO = docenteService.findById(id);
+            DocenteDTO docenteDTO = docenteService.findById(id, token);
             return ResponseEntity.ok(docenteDTO);
         } catch (Exception e){
             return ResponseEntity.notFound().build();

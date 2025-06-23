@@ -19,8 +19,8 @@ public class DiscenteController {
     DiscenteService discenteService;
 
     @GetMapping("/lista")
-    public List<DiscenteDTO> findDiscenti(){
-        return discenteService.findAll();
+    public List<DiscenteDTO> findDiscenti(@RequestHeader("Authorization") String token){
+        return discenteService.findAll(token);
     }
 
     @GetMapping("/corso-discente")
@@ -42,8 +42,8 @@ public class DiscenteController {
 
 
     @PostMapping
-    public ResponseEntity<DiscenteDTO> create(@RequestBody DiscenteDTO discenteDTO){
-        return new ResponseEntity<>(discenteService.creaDiscente(discenteDTO), HttpStatus.CREATED);
+    public ResponseEntity<DiscenteDTO> create(@RequestHeader("Authorization")String token, @RequestBody DiscenteDTO discenteDTO){
+        return new ResponseEntity<>(discenteService.creaDiscente(discenteDTO, token), HttpStatus.CREATED);
     }
 
     @PostMapping("/corso-discente")
@@ -54,9 +54,9 @@ public class DiscenteController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<DiscenteDTO> findById(@PathVariable Long id){
+    public ResponseEntity<DiscenteDTO> findById(@RequestHeader("Authorization")String token, @PathVariable Long id){
         try {
-            DiscenteDTO discenteDTO = discenteService.findById(id);
+            DiscenteDTO discenteDTO = discenteService.findById(id, token);
             return ResponseEntity.ok(discenteDTO);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -64,14 +64,14 @@ public class DiscenteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DiscenteDTO> update(@PathVariable Long id, @RequestBody DiscenteDTO discenteDTO) {
-        DiscenteDTO discenteSalvato = discenteService.update(id, discenteDTO);
+    public ResponseEntity<DiscenteDTO> update(@RequestHeader("Authorization") String token,@PathVariable Long id, @RequestBody DiscenteDTO discenteDTO) {
+        DiscenteDTO discenteSalvato = discenteService.update(id, discenteDTO, token);
         return ResponseEntity.ok(discenteSalvato);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteDiscente(@PathVariable Long id){
-        discenteService.delete(id);
+    public ResponseEntity<String> deleteDiscente(@RequestHeader("Authorization") String token, @PathVariable Long id){
+        discenteService.delete(id, token);
         return ResponseEntity.ok("Discente eliminato");
     }
 }

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: discente_docente
+  profiles:
+    active: dev  # puoi sostituirlo con prod in produzione
+
+---
+server:
+  port: 8081
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

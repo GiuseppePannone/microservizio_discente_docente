@@ -8,4 +8,5 @@ public class CorsoWithoutAlunnoDTO {
     private String nomeCorso;
     private int oreCorso;
     private int annoAccademico;
+
 }

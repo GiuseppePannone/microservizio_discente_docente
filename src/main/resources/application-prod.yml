@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db:5432/discente_docente
+    username: discente_user
+    password: ${DB_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: discenti_docente_microservice

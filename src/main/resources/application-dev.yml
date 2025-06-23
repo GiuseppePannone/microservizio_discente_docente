@@ -1,0 +1,14 @@
+spring:
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: rootroot
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: discenti_docente_microservice

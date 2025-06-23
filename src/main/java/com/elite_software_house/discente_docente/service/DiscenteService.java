@@ -3,6 +3,7 @@ package com.elite_software_house.discente_docente.service;
 
 import com.elite_software_house.discente_docente.DTO.CorsoDiscenteDTO;
 import com.elite_software_house.discente_docente.DTO.CorsoListDTO;
+import com.elite_software_house.discente_docente.DTO.CorsoWithoutAlunnoDTO;
 import com.elite_software_house.discente_docente.DTO.DiscenteDTO;
 import com.elite_software_house.discente_docente.entity.Discente;
 import com.elite_software_house.discente_docente.mapper.DiscenteMapper;
@@ -31,12 +32,12 @@ public class DiscenteService {
     @Autowired
     private ExternalService externalService;
 
-    public List<DiscenteDTO> findAll() {
+    public List<DiscenteDTO> findAll(String token) {
         List<DiscenteDTO> discentiDTO = discenteMapper.entityListToDtoList(discenteRepository.findAll());
 
         for(DiscenteDTO discenteDto : discentiDTO){
             try{
-                discenteDto.setCorsi(externalService.getCorsoWithoutAlunno(discenteDto.getId()));
+                discenteDto.setCorsi(externalService.getCorsoWithoutAlunno(discenteDto.getId(),token));
             } catch (Exception e){
                 System.out.println(e.getMessage());
             }
@@ -77,13 +78,22 @@ public class DiscenteService {
     }
 
 
-    public DiscenteDTO findById(Long id) {
-        return discenteMapper.toDto(discenteRepository.findById(id).orElse(null));
+    public DiscenteDTO findById(Long id, String token) {
+        DiscenteDTO discenteDTO = discenteMapper.toDto(discenteRepository.findById(id).orElseThrow());
+        discenteDTO.setCorsi(externalService.getCorsoWithoutAlunno(discenteDTO.getId(), token));
+        return discenteDTO;
     }
 
-   public DiscenteDTO creaDiscente(DiscenteDTO discenteDTO) {
+   public DiscenteDTO creaDiscente(DiscenteDTO discenteDTO, String token) {
         Discente discente = discenteMapper.toEntity(discenteDTO);
-        return discenteMapper.toDto(discenteRepository.save(discente));
+        discenteRepository.save(discente);
+        if(discenteDTO.getCorsi() != null && !discenteDTO.getCorsi().isEmpty()){
+            List<Long> corsiIds = discenteDTO.getCorsi().stream()
+                    .map(CorsoWithoutAlunnoDTO::getId)
+                    .toList();
+            List<CorsoWithoutAlunnoDTO> corsi = externalService.getCorsoWithoutAlunno(discente.getId(), token);
+        }
+        return discenteMapper.toDto(discente);
     }
 
     public CorsoDiscenteDTO associaCorsoDiscente(CorsoDiscenteDTO corsoDiscenteDTO) {
@@ -96,17 +106,25 @@ public class DiscenteService {
                 .block();
     }
 
-    public DiscenteDTO update(Long id, DiscenteDTO discenteDTO) {
+    public DiscenteDTO update(Long id, DiscenteDTO discenteDTO, String token) {
         this.discenteRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Discente non trovato")
         );
         discenteDTO.setId(id);
         Discente discente = discenteMapper.toEntity(discenteDTO);
+        if(discenteDTO.getCorsi() != null) {
+            List<CorsoWithoutAlunnoDTO> corsi =  externalService.getCorsoWithoutAlunno(discenteDTO.getId(), token);
+        }
         return discenteMapper.toDto(discenteRepository.save(discente));
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, String token) {
         Discente discente = discenteRepository.findById(id).orElseThrow();
+        try{
+            externalService.getCorsoWithoutAlunno(id, token);
+        } catch (Exception e){
+            throw new RuntimeException("Accesso non autorizzato");
+        }
         discenteRepository.delete(discente);
     }
 }

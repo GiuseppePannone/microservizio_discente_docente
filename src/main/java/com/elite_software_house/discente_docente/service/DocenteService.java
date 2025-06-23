@@ -1,5 +1,6 @@
 package com.elite_software_house.discente_docente.service;
 
+import com.elite_software_house.discente_docente.DTO.CorsoWithoutAlunnoDTO;
 import com.elite_software_house.discente_docente.DTO.DocenteDTO;
 import com.elite_software_house.discente_docente.entity.Docente;
 import com.elite_software_house.discente_docente.mapper.DocenteMapper;
@@ -31,12 +32,14 @@ public class DocenteService {
 //    @Autowired
 //    private CorsoRepository corsoRepository;
 
-    public List<DocenteDTO> findAll() {
+    public List<DocenteDTO> findAll(String token) {
         List<DocenteDTO> docentiDTO = docenteMapper.entityListToDtoList(docenteRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
 
         for(DocenteDTO docenteDto : docentiDTO){
             try{
-                docenteDto.setCorsi(externalService.getCorsoWithoutAlunno(docenteDto.getId()));
+                docenteDto.setCorsi(externalService.getCorsoWithoutAlunnoByDocenteId( token, docenteDto));
+               // docenteDto.setCorsiIds(docenteDto.getCorsi().stream().map(CorsoWithoutAlunnoDTO::getId).collect(Collectors.toList()));
+               // docenteDto.setCorsiIds(externalService.getCorsoById(docenteDto.getCorsiIds()));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -44,10 +47,12 @@ public class DocenteService {
         return docentiDTO;
     }
 
-    public DocenteDTO findById(Long id) {
-        return docenteMapper.toDto(docenteRepository.findById(id).orElseThrow(
+    public DocenteDTO findById(Long id, String token) {
+         DocenteDTO docenteDTO = docenteMapper.toDto(docenteRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Docente non trovato")
         ));
+         docenteDTO.setCorsi(externalService.getCorsoWithoutAlunnoByDocenteId(token, docenteDTO));
+         return docenteDTO;
     }
 
     public DocenteDTO creaDocente(DocenteDTO docenteDTO) {

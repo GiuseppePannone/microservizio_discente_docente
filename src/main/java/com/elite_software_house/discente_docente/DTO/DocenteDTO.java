@@ -11,6 +11,5 @@ public class DocenteDTO {
     private String nome;
     private String cognome;
     private Date dataDiNascita;
-    private List<Long> corsiIds;
     private List<CorsoWithoutAlunnoDTO> corsi;
 }
